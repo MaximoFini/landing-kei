@@ -814,6 +814,9 @@ document.addEventListener('DOMContentLoaded', () => {
     gameLoading = true;
     if (gameFab) gameFab.classList.add('loading');
 
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+
     const loadCSS = new Promise((resolve, reject) => {
       if (document.getElementById('game-style')) {
         resolve();
@@ -822,7 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const link = document.createElement('link');
       link.id = 'game-style';
       link.rel = 'stylesheet';
-      link.href = '/game.css';
+      link.href = `${cleanBaseUrl}game.css`;
       link.onload = resolve;
       link.onerror = reject;
       document.head.appendChild(link);
@@ -835,7 +838,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const script = document.createElement('script');
       script.id = 'game-script';
-      script.src = '/game.js';
+      script.src = `${cleanBaseUrl}game.js`;
       script.onload = resolve;
       script.onerror = reject;
       document.body.appendChild(script);
