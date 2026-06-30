@@ -46,8 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }, {
-    threshold: 0.15,
-    rootMargin: '0px 0px -50px 0px'
+    threshold: 0.05, // Se activa más rápido (5% de visibilidad en pantalla)
+    rootMargin: '0px 0px 50px 0px' // Se activa 50px antes de entrar al viewport
   });
   
   revealElements.forEach(element => {
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }, {
-    threshold: 0.5
+    threshold: 0.1 // Se reduce el umbral para asegurar que empiece a contar apenas se asoma
   });
   
   stats.forEach(stat => {
@@ -140,14 +140,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let width = 0;
     let height = 0;
     let nodes = [];
-    const maxNodes = 40;
-    const connectionDistance = 110;
+    let morphProgress = 0;
+    
+    // Metropolitan Area coordinates
+    let metroCenterX = 0;
+    let metroCenterY = 0;
+    let metroRadius = 0;
     
     // Mouse properties
     const mouse = {
       x: null,
-      y: null,
-      radius: 120
+      y: null
     };
 
     // Pulse and ripple states
@@ -178,20 +181,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if mobile or layout dimensions
     const isMobile = () => window.innerWidth < 768;
     
-    // Resize handler
-    const resizeCanvas = () => {
-      if (isMobile()) {
-        cancelAnimationFrame(animationFrameId);
-        return;
+    // Calculate morphProgress based on scroll
+    const updateMorphProgress = () => {
+      const heroSection = document.querySelector('.hero-section');
+      const targetSection = document.getElementById('como-funciona');
+      if (heroSection && targetSection) {
+        const scrollY = window.scrollY;
+        const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
+        // Fully in viewport means its bottom is visible at the bottom of viewport
+        const targetFullyIn = targetSection.offsetTop + targetSection.offsetHeight - window.innerHeight;
+        
+        if (scrollY <= heroBottom) {
+          morphProgress = 0;
+        } else if (scrollY >= targetFullyIn) {
+          morphProgress = 1;
+        } else {
+          morphProgress = (scrollY - heroBottom) / Math.max(1, targetFullyIn - heroBottom);
+        }
       }
       
-      const container = canvas.parentElement;
-      width = container.clientWidth;
-      height = container.clientHeight;
+      // Update canvas opacity dynamically
+      if (canvas) {
+        canvas.style.opacity = (0.8 - morphProgress * 0.55).toString();
+      }
+    };
+
+    // Resize handler
+    const resizeCanvas = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
       
+      const heroVisual = document.querySelector('.hero-visual');
+      if (heroVisual) {
+        const rect = heroVisual.getBoundingClientRect();
+        // Calculate absolute page-relative coordinates of the center of .hero-visual
+        metroCenterX = rect.left + window.scrollX + rect.width / 2;
+        metroCenterY = rect.top + window.scrollY + rect.height / 2;
+        // Set the radius to a safe fraction of the visual container size
+        metroRadius = Math.min(rect.width, rect.height) * 0.45;
+      } else {
+        // Fallback to viewport percentages if element not found
+        const mobile = isMobile();
+        if (mobile) {
+          metroCenterX = width * 0.5;
+          metroCenterY = height * 0.65;
+          metroRadius = Math.min(width, height) * 0.28;
+        } else {
+          metroCenterX = width * 0.70;
+          metroCenterY = height * 0.50;
+          metroRadius = Math.min(width, height) * 0.22;
+        }
+      }
+      
       initNodes();
+      updateMorphProgress();
     };
     
     // Initialize nodes
@@ -202,14 +247,64 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tooltip) tooltip.classList.remove('active');
       currentHoveredNode = null;
 
-      for (let i = 0; i < maxNodes; i++) {
+      const mobile = isMobile();
+      const currentMaxNodes = mobile ? 22 : 45;
+
+      // 4 horizontal streets at Y coordinates
+      const horizontalStreets = [
+        0.2 * height,
+        0.4 * height,
+        0.6 * height,
+        0.8 * height
+      ];
+      // 4 vertical streets at X coordinates
+      const verticalStreets = [
+        0.15 * width,
+        0.4 * width,
+        0.65 * width,
+        0.9 * width
+      ];
+
+      const denseCount = Math.round(currentMaxNodes * 0.7);
+
+      for (let i = 0; i < currentMaxNodes; i++) {
+        const isVertical = Math.random() < 0.5;
+        let cityX, cityY;
+        
+        if (isVertical) {
+          cityX = verticalStreets[Math.floor(Math.random() * verticalStreets.length)];
+          cityY = Math.random() * height;
+        } else {
+          cityX = Math.random() * width;
+          cityY = horizontalStreets[Math.floor(Math.random() * horizontalStreets.length)];
+        }
+
+        const isDense = i < denseCount;
+        let x, y;
+
+        if (isDense) {
+          const angle = Math.random() * Math.PI * 2;
+          const distance = Math.pow(Math.random(), 1.5) * metroRadius;
+          x = metroCenterX + Math.cos(angle) * distance;
+          y = metroCenterY + Math.sin(angle) * distance;
+        } else {
+          x = Math.random() * width;
+          y = Math.random() * height;
+        }
+
         nodes.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
+          x: x,
+          y: y,
           vx: (Math.random() - 0.5) * 0.4,
           vy: (Math.random() - 0.5) * 0.4,
           radius: Math.random() * 2.5 + 2.5,
-          alpha: Math.random() * 0.5 + 0.3
+          alpha: Math.random() * 0.5 + 0.3,
+          isVertical: isVertical,
+          cityX: cityX,
+          cityY: cityY,
+          renderX: 0,
+          renderY: 0,
+          isDense: isDense
         });
       }
     };
@@ -218,19 +313,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateRandomPath = (startNode, hops = 3) => {
       const path = [startNode];
       let current = startNode;
+      const currentConnDistance = isMobile() ? 75 : 110;
       
       for (let h = 0; h < hops; h++) {
         const neighbors = [];
         nodes.forEach(node => {
           if (node === current) return;
-          const dx = node.x - current.x;
-          const dy = node.y - current.y;
+          const dx = node.renderX - current.renderX;
+          const dy = node.renderY - current.renderY;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < connectionDistance) {
+          if (dist < currentConnDistance) {
             neighbors.push(node);
           }
         });
-        
+         
         if (neighbors.length === 0) break;
         
         // Prevent immediate backtracking if possible
@@ -260,44 +356,88 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Draw and update simulation
     const animate = () => {
-      if (!isCanvasVisible || isMobile()) return;
+      if (!isCanvasVisible) return;
       
       ctx.clearRect(0, 0, width, height);
 
       // Read theme status once per frame for high performance
       const isDark = document.body.classList.contains('dark-theme');
       const colorRGB = isDark ? '59, 98, 252' : '23, 64, 182';
+      const currentConnDistance = isMobile() ? 75 : 110;
+      const mouseRadius = isMobile() ? 80 : 120;
       
-      // Update & Draw Nodes
+      // Update Nodes
       nodes.forEach(node => {
-        // Move nodes
+        // standard physics
         node.x += node.vx;
         node.y += node.vy;
-        
-        // Bounce off walls
-        if (node.x < 0 || node.x > width) node.vx *= -1;
-        if (node.y < 0 || node.y > height) node.vy *= -1;
-        
-        // Mouse interaction (gentle repulsion)
+
+        // Maintain Metropolitan Density (Attraction Forces in animate)
+        if (node.isDense && morphProgress === 0) {
+          const dx = metroCenterX - node.x;
+          const dy = metroCenterY - node.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > metroRadius) {
+            // Gentle steering vector back to the metro area
+            node.vx += (dx / dist) * 0.008;
+            node.vy += (dy / dist) * 0.008;
+          }
+          // Limit the speed of dense nodes slightly so they move in a smooth, swarm-like motion within the metropolitan cluster.
+          const speed = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
+          const maxSpeed = 0.25;
+          if (speed > maxSpeed) {
+            node.vx = (node.vx / speed) * maxSpeed;
+            node.vy = (node.vy / speed) * maxSpeed;
+          }
+        }
+
+        if (node.x < 0) { node.x = 0; node.vx = Math.abs(node.vx); }
+        else if (node.x > width) { node.x = width; node.vx = -Math.abs(node.vx); }
+        if (node.y < 0) { node.y = 0; node.vy = Math.abs(node.vy); }
+        else if (node.y > height) { node.y = height; node.vy = -Math.abs(node.vy); }
+
+        // city coordinates (nodes drive along lines)
+        if (node.isVertical) {
+          node.cityY += node.vy * 1.5;
+          if (node.cityY < 0) { node.cityY = 0; node.vy = Math.abs(node.vy); }
+          else if (node.cityY > height) { node.cityY = height; node.vy = -Math.abs(node.vy); }
+        } else {
+          node.cityX += node.vx * 1.5;
+          if (node.cityX < 0) { node.cityX = 0; node.vx = Math.abs(node.vx); }
+          else if (node.cityX > width) { node.cityX = width; node.vx = -Math.abs(node.vx); }
+        }
+
+        // Interpolate render coordinates
+        node.renderX = node.x * (1 - morphProgress) + node.cityX * morphProgress;
+        node.renderY = node.y * (1 - morphProgress) + node.cityY * morphProgress - window.scrollY * (1 - morphProgress);
+
+        // Mouse/Touch interaction (gentle repulsion)
         if (mouse.x !== null && mouse.y !== null) {
-          const dx = node.x - mouse.x;
-          const dy = node.y - mouse.y;
+          const dx = node.renderX - mouse.x;
+          const dy = node.renderY - mouse.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           
-          if (dist < mouse.radius) {
-            const force = (mouse.radius - dist) / mouse.radius;
-            // Repel direction
+          if (dist < mouseRadius) {
+            const force = (mouseRadius - dist) / mouseRadius;
             const rx = dx / dist;
             const ry = dy / dist;
-            // Apply repulsion force smoothly
+            // Apply repulsion to underlying physics and city coordinates so both morph cleanly
             node.x += rx * force * 1.5;
             node.y += ry * force * 1.5;
+            if (node.isVertical) {
+              node.cityY += ry * force * 1.5;
+            } else {
+              node.cityX += rx * force * 1.5;
+            }
+            // Recalculate render coordinates after repulsion is applied
+            node.renderX = node.x * (1 - morphProgress) + node.cityX * morphProgress;
+            node.renderY = node.y * (1 - morphProgress) + node.cityY * morphProgress - window.scrollY * (1 - morphProgress);
           }
         }
         
-        // Draw node
+        // Draw node circle
         ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.arc(node.renderX, node.renderY, node.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${colorRGB}, ${node.alpha})`;
         ctx.fill();
       });
@@ -305,16 +445,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Draw Connections
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x;
-          const dy = nodes[i].y - nodes[j].y;
+          const dx = nodes[i].renderX - nodes[j].renderX;
+          const dy = nodes[i].renderY - nodes[j].renderY;
           const dist = Math.sqrt(dx * dx + dy * dy);
           
-          if (dist < connectionDistance) {
-            // Fades as distance increases
-            const alpha = (1 - (dist / connectionDistance)) * 0.18;
+          if (dist < currentConnDistance) {
+            const alpha = (1 - (dist / currentConnDistance)) * 0.18;
             ctx.beginPath();
-            ctx.moveTo(nodes[i].x, nodes[i].y);
-            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.moveTo(nodes[i].renderX, nodes[i].renderY);
+            ctx.lineTo(nodes[j].renderX, nodes[j].renderY);
             ctx.strokeStyle = `rgba(${colorRGB}, ${alpha})`;
             ctx.lineWidth = 1;
             ctx.stroke();
@@ -333,8 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
           continue;
         }
         
+        const drawY = ripple.y - (window.scrollY - ripple.spawnScrollY) * (1 - morphProgress);
+        
         ctx.beginPath();
-        ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+        ctx.arc(ripple.x, drawY, ripple.radius, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(${colorRGB}, ${ripple.alpha})`;
         ctx.lineWidth = 1.5;
         ctx.stroke();
@@ -351,12 +492,11 @@ document.addEventListener('DOMContentLoaded', () => {
           continue;
         }
         
-        const dx = nodeB.x - nodeA.x;
-        const dy = nodeB.y - nodeA.y;
+        const dx = nodeB.renderX - nodeA.renderX;
+        const dy = nodeB.renderY - nodeA.renderY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         
         if (dist > 0) {
-          // Travel speed of 1.5 pixels per frame
           pulse.progress += 1.5 / dist;
         } else {
           pulse.progress = 1;
@@ -372,8 +512,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Calculate position
-        const x = nodeA.x + (nodeB.x - nodeA.x) * pulse.progress;
-        const y = nodeA.y + (nodeB.y - nodeA.y) * pulse.progress;
+        const x = nodeA.renderX + (nodeB.renderX - nodeA.renderX) * pulse.progress;
+        const y = nodeA.renderY + (nodeB.renderY - nodeA.renderY) * pulse.progress;
         
         // Draw pulse
         ctx.beginPath();
@@ -406,8 +546,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (mouse.x !== null && mouse.y !== null) {
         let minDist = hoverDistance;
         nodes.forEach(node => {
-          const dx = node.x - mouse.x;
-          const dy = node.y - mouse.y;
+          const dx = node.renderX - mouse.x;
+          const dy = node.renderY - mouse.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < minDist) {
             minDist = dist;
@@ -417,7 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       if (hoveredNode) {
-        canvas.style.cursor = 'pointer';
         if (currentHoveredNode !== hoveredNode) {
           currentHoveredNode = hoveredNode;
           if (tooltip && tooltipText) {
@@ -427,11 +566,10 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
         if (tooltip) {
-          tooltip.style.left = `${hoveredNode.x}px`;
-          tooltip.style.top = `${hoveredNode.y}px`;
+          tooltip.style.left = `${hoveredNode.renderX}px`;
+          tooltip.style.top = `${hoveredNode.renderY}px`;
         }
       } else {
-        canvas.style.cursor = 'grab';
         if (currentHoveredNode !== null) {
           currentHoveredNode = null;
           if (tooltip) {
@@ -443,28 +581,51 @@ document.addEventListener('DOMContentLoaded', () => {
       animationFrameId = requestAnimationFrame(animate);
     };
     
-    // Mouse Event Listeners
-    canvas.addEventListener('mousemove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-    });
+    // Window mouse/touch listeners for background canvas interaction
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }, { passive: true });
     
-    canvas.addEventListener('mouseleave', () => {
+    window.addEventListener('mouseleave', () => {
       mouse.x = null;
       mouse.y = null;
     });
 
-    // Click Event Listener
-    canvas.addEventListener('click', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    // Window click listener (spawn ripples / pulses)
+    window.addEventListener('click', (e) => {
+      // Ignore click if clicking interactive elements
+      if (e.target.closest('button, a, input, textarea, select')) {
+        return;
+      }
+      
+      const clickX = e.clientX;
+      const clickY = e.clientY;
       
       // Spawn a ripple
       ripples.push({
         x: clickX,
         y: clickY,
+        spawnScrollY: window.scrollY,
         radius: 2,
         maxRadius: 50,
         alpha: 0.8,
@@ -475,8 +636,8 @@ document.addEventListener('DOMContentLoaded', () => {
       let nearestNode = null;
       let minDist = Infinity;
       nodes.forEach(node => {
-        const dx = node.x - clickX;
-        const dy = node.y - clickY;
+        const dx = node.renderX - clickX;
+        const dy = node.renderY - clickY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < minDist) {
           minDist = dist;
@@ -494,7 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvasObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         isCanvasVisible = entry.isIntersecting;
-        if (isCanvasVisible && !isMobile()) {
+        if (isCanvasVisible) {
           animate();
         } else {
           cancelAnimationFrame(animationFrameId);
@@ -509,11 +670,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle resize
     window.addEventListener('resize', () => {
       resizeCanvas();
-      if (isCanvasVisible && !isMobile()) {
+      if (isCanvasVisible) {
         cancelAnimationFrame(animationFrameId);
         animate();
       }
     });
+
+    window.addEventListener('scroll', updateMorphProgress, { passive: true });
     
     // Initial load
     resizeCanvas();

@@ -208,7 +208,7 @@ p {
 /* Hero Section */
 .hero-section {
   position: relative;
-  background-color: var(--bg-primary);
+  background-color: transparent;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -265,18 +265,20 @@ p {
 }
 
 #network-canvas {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  cursor: grab;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
 }
 
 /* Network Canvas Tooltip & Custom Animations */
 .network-tooltip {
-  position: absolute;
+  position: fixed;
   pointer-events: none;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(8px) saturate(180%);
@@ -344,13 +346,6 @@ p {
   }
 }
 
-.mobile-network-fallback {
-  display: none;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-}
-
 /* Section 2: El Problema (Opción A - Stats apiladas con separadores) */
 .problem-section {
   padding: 8rem 0;
@@ -416,7 +411,7 @@ p {
 
 /* Section 3: Cómo Funciona */
 .how-it-works-section {
-  background-color: var(--bg-secondary);
+  background-color: rgba(240, 244, 255, 0.4);
   padding: 8rem 0;
 }
 
@@ -1350,14 +1345,6 @@ p {
     height: 300px;
   }
   
-  #network-canvas {
-    display: none; /* Hide canvas animation loop on mobile to preserve CPU */
-  }
-  
-  .mobile-network-fallback {
-    display: block; /* Show lightweight static vector representation */
-  }
-
   .logos-grid {
     justify-content: center;
     gap: 2rem;
@@ -1553,13 +1540,9 @@ body.dark-theme .visual-svg *[stroke="rgba(23, 64, 182, 0.15)"] {
   stroke: rgba(59, 98, 252, 0.3);
 }
 
-/* Adjust SVG mobile network fallback in dark mode */
-body.dark-theme .mobile-network-fallback svg circle {
-  fill: var(--primary-indigo);
-}
-
-body.dark-theme .mobile-network-fallback svg line {
-  stroke: var(--primary-indigo);
+/* Adjust How It Works Section background in dark mode */
+body.dark-theme .how-it-works-section {
+  background-color: rgba(18, 21, 40, 0.4);
 }
 
 /* Invert monochromatic partner logos in dark mode to clean off-white */

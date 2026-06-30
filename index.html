@@ -11,10 +11,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Stylesheet -->
   <link rel="stylesheet" href="/styles.css">
+  
+  <!-- Fallback en caso de que JavaScript esté desactivado o falle -->
+  <noscript>
+    <style>
+      .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    </style>
+  </noscript>
 </head>
 <body>
+
+  <!-- Interactive node network canvas (background) -->
+  <canvas id="network-canvas"></canvas>
+  <div id="network-tooltip" class="network-tooltip">
+    <div class="tooltip-status-dot"></div>
+    <span class="tooltip-text"></span>
+  </div>
 
   <!-- Navigation -->
   <header class="navbar">
@@ -69,34 +85,7 @@
           </a>
         </div>
       </div>
-      <div class="hero-visual">
-        <!-- Interactive node network canvas -->
-        <canvas id="network-canvas"></canvas>
-        <div id="network-tooltip" class="network-tooltip">
-          <div class="tooltip-status-dot"></div>
-          <span class="tooltip-text"></span>
-        </div>
-        <!-- Static SVG fallback for mobile -->
-        <div class="mobile-network-fallback">
-          <svg width="100%" height="100%" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="80" cy="100" r="6" fill="#1740B6" />
-            <circle cx="280" cy="80" r="4" fill="#1740B6" />
-            <circle cx="340" cy="200" r="5" fill="#1740B6" />
-            <circle cx="150" cy="250" r="7" fill="#1740B6" />
-            <circle cx="260" cy="300" r="5" fill="#1740B6" />
-            <circle cx="70" cy="320" r="4" fill="#1740B6" />
-            
-            <line x1="80" y1="100" x2="280" y2="80" stroke="#1740B6" stroke-opacity="0.15" stroke-width="1.5" />
-            <line x1="80" y1="100" x2="150" y2="250" stroke="#1740B6" stroke-opacity="0.15" stroke-width="1.5" />
-            <line x1="280" y1="80" x2="340" y2="200" stroke="#1740B6" stroke-opacity="0.15" stroke-width="1.5" />
-            <line x1="150" y1="250" x2="340" y2="200" stroke="#1740B6" stroke-opacity="0.15" stroke-width="1.5" />
-            <line x1="150" y1="250" x2="260" y2="300" stroke="#1740B6" stroke-opacity="0.15" stroke-width="1.5" />
-            <line x1="260" y1="300" x2="340" y2="200" stroke="#1740B6" stroke-opacity="0.15" stroke-width="1.5" />
-            <line x1="150" y1="250" x2="70" y2="320" stroke="#1740B6" stroke-opacity="0.15" stroke-width="1.5" />
-            <line x1="260" y1="300" x2="70" y2="320" stroke="#1740B6" stroke-opacity="0.15" stroke-width="1.5" />
-          </svg>
-        </div>
-      </div>
+      <div class="hero-visual"></div>
     </div>
   </section>
 
