@@ -36,7 +36,7 @@
   <header class="navbar">
     <div class="navbar-container">
       <a href="#" class="logo">
-        <img src="/logo-kei.svg" alt="Kei Logistics" class="logo-img">
+        <img src="/logo-kei.svg" alt="Kei Logistics" class="logo-img" width="40" height="38">
         <span class="logo-text">
           <span class="logo-serif">Kei</span>
           <span class="logo-sans">Logistics</span>
@@ -460,17 +460,17 @@
       <div class="logos-grid">
         <div class="logo-item">
           <!-- Monochromatic text/custom SVG logo representation for Rossetti Deportes -->
-          <img src="/logo-rossetti.png" alt="Rossetti Deportes" class="partner-logo-img">
+          <img src="/logo-rossetti.png" alt="Rossetti Deportes" class="partner-logo-img" width="105" height="32" loading="lazy">
           <span class="logo-text">Rossetti Deportes</span>
         </div>
         <div class="logo-item">
           <!-- Monochromatic logo representation for Deutsch -->
-          <img src="/logo-deutsch.png" alt="Deutsch" class="partner-logo-img">
+          <img src="/logo-deutsch.png" alt="Deutsch" class="partner-logo-img" width="38" height="32" loading="lazy">
           <span class="logo-text">Deutsch</span>
         </div>
         <div class="logo-item">
           <!-- Monochromatic logo representation for Amerika SB -->
-          <img src="/logo-amerika.png" alt="Amerika SB" class="partner-logo-img">
+          <img src="/logo-amerika.png" alt="Amerika SB" class="partner-logo-img" width="80" height="32" loading="lazy">
           <span class="logo-text">Amerika SB</span>
         </div>
         <div class="logo-item">
@@ -487,11 +487,11 @@
       <!-- Incubator Logos Grid -->
       <div class="incubators-grid">
         <div class="incubator-item">
-          <img src="/logo-founder-institute.png" alt="Founder Institute" class="partner-logo-img">
+          <img src="/logo-founder-institute.png" alt="Founder Institute" class="partner-logo-img" width="32" height="32" loading="lazy">
           <span class="incubator-logo">Founder Institute</span>
         </div>
         <div class="incubator-item">
-          <img src="/logo-anden.png" alt="Andén" class="partner-logo-img">
+          <img src="/logo-anden.png" alt="Andén" class="partner-logo-img" width="32" height="32" loading="lazy">
           <span class="incubator-logo">Andén</span>
         </div>
       </div>
@@ -516,7 +516,7 @@
     <div class="footer-container">
       <div class="footer-brand">
         <a href="#" class="logo">
-          <img src="/logo-kei.svg" alt="Kei Logistics" class="logo-img">
+          <img src="/logo-kei.svg" alt="Kei Logistics" class="logo-img" width="40" height="38">
           <span class="logo-text">
             <span class="logo-serif">Kei</span>
             <span class="logo-sans">Logistics</span>
@@ -533,6 +533,80 @@
       </div>
     </div>
   </footer>
+
+  <!-- Game Floating Action Button (FAB) -->
+  <button id="game-fab" class="game-fab" aria-label="Jugar Whack-a-Problem" title="Minijuego: Whack-a-Problem">
+    <!-- Gamepad Icon -->
+    <svg class="game-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="6" width="20" height="12" rx="3"></rect>
+      <line x1="6" y1="12" x2="10" y2="12"></line>
+      <line x1="8" y1="10" x2="8" y2="14"></line>
+      <line x1="15" y1="12" x2="15.01" y2="12"></line>
+      <line x1="18" y1="12" x2="18.01" y2="12"></line>
+    </svg>
+    <span class="fab-loader"></span>
+  </button>
+
+  <!-- Game Modal Wrapper -->
+  <div id="game-modal" class="game-modal" aria-hidden="true" role="dialog">
+    <div class="game-modal-backdrop"></div>
+    <div class="game-modal-content">
+      <button class="game-modal-close" id="game-modal-close" aria-label="Cerrar juego">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div id="game-container">
+        <!-- Runner Game Layout -->
+        <div class="runner-area-wrapper" id="runner-area">
+          <canvas id="runner-canvas" width="580" height="280"></canvas>
+          
+          <!-- Glassmorphic HUD overlay -->
+          <div class="runner-hud-glass">
+            <div class="hud-stat">Puntaje: <span id="runner-score-val">0</span></div>
+            <div class="hud-stat">🏆 Récord: <span id="runner-highscore-val">0</span></div>
+            <div class="hud-stat">Velocidad: <span id="runner-speed-val">1.0x</span></div>
+          </div>
+          
+          <div class="runner-tip-overlay">Presioná ESPACIO o haz clic para saltar</div>
+
+          <!-- Runner Start Screen -->
+          <div class="game-screen active" id="screen-runner-start">
+            <div class="screen-icon">🚚</div>
+            <h3 class="screen-title">Kei Runner</h3>
+            <p class="screen-desc">
+              Conducí el camión de Kei. Esquivá la burocracia de la logística tradicional (Excel 📊, llamadas 📞) y recolectá los paquetes de Kei (📦).
+            </p>
+            <div class="screen-score score-record">🏆 Récord Máximo: <span class="runner-start-highscore">0</span> pts</div>
+            <button class="btn btn-primary btn-game" id="btn-start-runner">Comenzar Carrera</button>
+          </div>
+
+          <!-- Runner Game Over Screen -->
+          <div class="game-screen" id="screen-runner-gameover">
+            <div class="screen-icon">🛑</div>
+            <h3 class="screen-title">¡Accidente por Burocracia!</h3>
+            <p class="screen-desc">
+              Colisionaste contra un proceso manual. ¡Automatizá tu logística con Kei para avanzar sin obstáculos!
+            </p>
+            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 0.75rem;">
+              <div class="screen-score">Puntaje: <span id="runner-final-score">0</span> pts</div>
+              <div class="screen-score score-record">🏆 Récord: <span class="runner-gameover-highscore">0</span> pts</div>
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; width: 100%;">
+              <button class="btn btn-primary btn-game" id="btn-retry-runner">Reintentar</button>
+              <a href="https://wa.me/5493513614462" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-game-secondary">Contactar a Kei</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rotating Tip Bar at the bottom of the modal -->
+        <div class="runner-tip-bar" id="runner-tip-bar">
+          <span class="runner-tip-text" id="runner-tip-text">Kei elimina el papeleo manual 📉</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Script -->
   <script type="module" src="/script.js"></script>

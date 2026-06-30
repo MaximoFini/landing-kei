@@ -439,11 +439,13 @@ p {
   position: absolute;
   top: 48px;
   left: 0;
-  width: 0%;
+  width: 100%;
   height: 2px;
   background-color: var(--primary-indigo);
   z-index: 1;
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .timeline-steps {
@@ -1242,9 +1244,11 @@ p {
     top: 0;
     left: 25px;
     width: 2px !important;
-    height: 0%;
-    max-height: calc(100% - 20px);
-    transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    height: calc(100% - 20px) !important;
+    max-height: none;
+    transform: scaleY(0);
+    transform-origin: top center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .timeline-endpoint {
@@ -1570,6 +1574,185 @@ body.dark-theme .network-tooltip::after {
   }
   .navbar-container {
     padding: 0 1rem;
+  }
+}
+
+/* ==========================================================================
+   GAME FLOATING ACTION BUTTON (FAB) & MODAL CONTAINER
+   ========================================================================== */
+
+.game-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--primary-indigo);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(23, 64, 182, 0.35);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, box-shadow 0.3s ease;
+  animation: fabPulse 2s infinite ease-in-out;
+}
+
+.game-fab:hover {
+  transform: scale(1.1);
+  background-color: var(--primary-indigo-hover);
+  box-shadow: 0 6px 20px rgba(23, 64, 182, 0.45);
+}
+
+.game-fab:active {
+  transform: scale(0.95);
+}
+
+/* Pulsing outer ring animation */
+@keyframes fabPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(23, 64, 182, 0.5), 0 4px 15px rgba(23, 64, 182, 0.3);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(23, 64, 182, 0), 0 4px 15px rgba(23, 64, 182, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(23, 64, 182, 0), 0 4px 15px rgba(23, 64, 182, 0.3);
+  }
+}
+
+body.dark-theme .game-fab {
+  background-color: var(--primary-indigo);
+  box-shadow: 0 4px 15px rgba(59, 98, 252, 0.4);
+  animation: fabPulseDark 2s infinite ease-in-out;
+}
+
+body.dark-theme .game-fab:hover {
+  background-color: var(--primary-indigo-hover);
+  box-shadow: 0 6px 20px rgba(59, 98, 252, 0.5);
+}
+
+@keyframes fabPulseDark {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 98, 252, 0.5), 0 4px 15px rgba(59, 98, 252, 0.3);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(59, 98, 252, 0), 0 4px 15px rgba(59, 98, 252, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 98, 252, 0), 0 4px 15px rgba(59, 98, 252, 0.3);
+  }
+}
+
+/* Loading State for FAB */
+.game-fab.loading .game-icon {
+  display: none;
+}
+
+.game-fab .fab-loader {
+  display: none;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: fabSpin 0.8s linear infinite;
+}
+
+.game-fab.loading .fab-loader {
+  display: block;
+}
+
+@keyframes fabSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Game Modal Overlay structure styles */
+.game-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.game-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.game-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 12, 22, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.game-modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 620px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  z-index: 1001;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.game-modal.active .game-modal-content {
+  transform: scale(1) translateY(0);
+}
+
+.game-modal-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-modal-close:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+body.dark-theme .game-modal-close:hover {
+  background-color: rgba(59, 98, 252, 0.1);
+}
+
+/* Responsiveness for FAB */
+@media (max-width: 768px) {
+  .game-fab {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
   }
 }
 

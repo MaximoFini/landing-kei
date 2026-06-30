@@ -5,13 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   const themeToggleBtn = document.getElementById('theme-toggle');
   
+  let isDarkTheme = false;
+
   const applyTheme = (theme) => {
     if (theme === 'dark') {
       document.body.classList.add('dark-theme');
       localStorage.setItem('theme', 'dark');
+      isDarkTheme = true;
     } else {
       document.body.classList.remove('dark-theme');
       localStorage.setItem('theme', 'light');
+      isDarkTheme = false;
     }
   };
 
@@ -28,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Toggle button click handler
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
-      const isDark = document.body.classList.contains('dark-theme');
-      applyTheme(isDark ? 'light' : 'dark');
+      applyTheme(isDarkTheme ? 'light' : 'dark');
     });
   }
 
@@ -360,9 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
       
       ctx.clearRect(0, 0, width, height);
 
-      // Read theme status once per frame for high performance
-      const isDark = document.body.classList.contains('dark-theme');
-      const colorRGB = isDark ? '59, 98, 252' : '23, 64, 182';
+      // Read cached theme status for high performance
+      const colorRGB = isDarkTheme ? '59, 98, 252' : '23, 64, 182';
       const currentConnDistance = isMobile() ? 75 : 110;
       const mouseRadius = isMobile() ? 80 : 120;
       
@@ -376,16 +378,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (node.isDense && morphProgress === 0) {
           const dx = metroCenterX - node.x;
           const dy = metroCenterY - node.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > metroRadius) {
+          const distSq = dx * dx + dy * dy;
+          const metroRadiusSq = metroRadius * metroRadius;
+          if (distSq > metroRadiusSq) {
+            const dist = Math.sqrt(distSq);
             // Gentle steering vector back to the metro area
             node.vx += (dx / dist) * 0.008;
             node.vy += (dy / dist) * 0.008;
           }
           // Limit the speed of dense nodes slightly so they move in a smooth, swarm-like motion within the metropolitan cluster.
-          const speed = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
+          const speedSq = node.vx * node.vx + node.vy * node.vy;
           const maxSpeed = 0.25;
-          if (speed > maxSpeed) {
+          const maxSpeedSq = maxSpeed * maxSpeed;
+          if (speedSq > maxSpeedSq) {
+            const speed = Math.sqrt(speedSq);
             node.vx = (node.vx / speed) * maxSpeed;
             node.vy = (node.vy / speed) * maxSpeed;
           }
@@ -415,9 +421,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mouse.x !== null && mouse.y !== null) {
           const dx = node.renderX - mouse.x;
           const dy = node.renderY - mouse.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          const distSq = dx * dx + dy * dy;
+          const mouseRadiusSq = mouseRadius * mouseRadius;
           
-          if (dist < mouseRadius) {
+          if (distSq < mouseRadiusSq) {
+            const dist = Math.sqrt(distSq) || 0.001;
             const force = (mouseRadius - dist) / mouseRadius;
             const rx = dx / dist;
             const ry = dy / dist;
@@ -443,13 +451,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       
       // Draw Connections
+      const currentConnDistanceSq = currentConnDistance * currentConnDistance;
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[i].renderX - nodes[j].renderX;
           const dy = nodes[i].renderY - nodes[j].renderY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          const distSq = dx * dx + dy * dy;
           
-          if (dist < currentConnDistance) {
+          if (distSq < currentConnDistanceSq) {
+            const dist = Math.sqrt(distSq);
             const alpha = (1 - (dist / currentConnDistance)) * 0.18;
             ctx.beginPath();
             ctx.moveTo(nodes[i].renderX, nodes[i].renderY);
@@ -544,13 +554,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // Manage Hovered Node & Tooltip
       let hoveredNode = null;
       if (mouse.x !== null && mouse.y !== null) {
-        let minDist = hoverDistance;
+        let minDistSq = hoverDistance * hoverDistance;
         nodes.forEach(node => {
           const dx = node.renderX - mouse.x;
           const dy = node.renderY - mouse.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < minDist) {
-            minDist = dist;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < minDistSq) {
+            minDistSq = distSq;
             hoveredNode = node;
           }
         });
@@ -741,11 +751,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (window.innerWidth < 992) {
-      activeLine.style.width = '';
-      activeLine.style.height = `${progress}%`;
+      activeLine.style.transform = `scaleY(${progress / 100})`;
     } else {
-      activeLine.style.height = '';
-      activeLine.style.width = `${progress}%`;
+      activeLine.style.transform = `scaleX(${progress / 100})`;
     }
     
     const endpoint = document.querySelector('.timeline-endpoint');
@@ -778,4 +786,112 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial check
     updateTimelineProgress();
   }
+
+  // ==========================================
+  // 6. WHACK-A-PROBLEM GAME LAZY LOADING
+  // ==========================================
+  const gameFab = document.getElementById('game-fab');
+  const gameModal = document.getElementById('game-modal');
+  const gameModalClose = document.getElementById('game-modal-close');
+  const backdrop = document.querySelector('.game-modal-backdrop');
+
+  let gameLoaded = false;
+  let gameLoading = false;
+
+  const loadGameAssets = () => {
+    if (gameLoaded) return Promise.resolve();
+    if (gameLoading) {
+      return new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+          if (gameLoaded) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+      });
+    }
+
+    gameLoading = true;
+    if (gameFab) gameFab.classList.add('loading');
+
+    const loadCSS = new Promise((resolve, reject) => {
+      if (document.getElementById('game-style')) {
+        resolve();
+        return;
+      }
+      const link = document.createElement('link');
+      link.id = 'game-style';
+      link.rel = 'stylesheet';
+      link.href = '/game.css';
+      link.onload = resolve;
+      link.onerror = reject;
+      document.head.appendChild(link);
+    });
+
+    const loadJS = new Promise((resolve, reject) => {
+      if (document.getElementById('game-script')) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.id = 'game-script';
+      script.src = '/game.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+
+    return Promise.all([loadCSS, loadJS]).then(() => {
+      gameLoaded = true;
+      gameLoading = false;
+      if (gameFab) gameFab.classList.remove('loading');
+    }).catch(err => {
+      gameLoading = false;
+      if (gameFab) gameFab.classList.remove('loading');
+      console.error('Failed to load game assets:', err);
+      alert('No se pudieron cargar los archivos del juego. Inténtalo de nuevo.');
+    });
+  };
+
+  const openGame = () => {
+    loadGameAssets().then(() => {
+      if (window.KeiGame && typeof window.KeiGame.open === 'function') {
+        window.KeiGame.open();
+        if (gameModal) {
+          gameModal.classList.add('active');
+          gameModal.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden'; // Prevent main page scrolling
+        }
+      }
+    });
+  };
+
+  const closeGame = () => {
+    if (window.KeiGame && typeof window.KeiGame.close === 'function') {
+      window.KeiGame.close();
+    }
+    if (gameModal) {
+      gameModal.classList.remove('active');
+      gameModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = ''; // Re-enable main page scrolling
+    }
+  };
+
+  if (gameFab) {
+    gameFab.addEventListener('click', openGame);
+  }
+
+  if (gameModalClose) {
+    gameModalClose.addEventListener('click', closeGame);
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', closeGame);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && gameModal && gameModal.classList.contains('active')) {
+      closeGame();
+    }
+  });
 });
