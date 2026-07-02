@@ -806,6 +806,11 @@
 
     // Kick loop
     runnerAnimationId = requestAnimationFrame(updateRunner);
+
+    // Track match start in PostHog
+    if (window.posthog) {
+      window.posthog.capture('runner_match_start');
+    }
   };
 
   /**
@@ -828,6 +833,14 @@
 
     // Save and compare highscore
     saveHighScore();
+
+    // Track match game over in PostHog
+    if (window.posthog) {
+      window.posthog.capture('runner_match_over', {
+        score: runnerScore,
+        highscore: runnerHighScore
+      });
+    }
 
     // Unbind jump listeners
     window.removeEventListener('keydown', handleKeyDown);

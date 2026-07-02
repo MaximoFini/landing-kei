@@ -1,5 +1,28 @@
+import posthog from 'posthog-js';
+
+// Initialize PostHog Analytics
+posthog.init('phc_kQWmbBHtcgBa3nfXM668nxvcEhbyF5QbCxQQxRA4Tsav', {
+  api_host: 'https://us.i.posthog.com',
+  person_profiles: 'identified_only',
+  autocapture: true,
+  capture_pageview: true,
+});
+
+window.posthog = posthog;
+
 document.addEventListener('DOMContentLoaded', () => {
-  
+  // Track contact button clicks
+  document.querySelectorAll('a[href*="wa.me"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const parentSection = btn.closest('section')?.id || btn.closest('header')?.className || 'unknown';
+      posthog.capture('contact_click', {
+        channel: 'whatsapp',
+        link_text: btn.textContent.trim(),
+        location: parentSection
+      });
+    });
+  });
+
   // ==========================================
   // 0. THEME TOGGLE (LIGHT / DARK SYSTEM)
   // ==========================================
@@ -658,6 +681,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (nearestNode) {
         const path = generateRandomPath(nearestNode, Math.floor(Math.random() * 2) + 2);
         spawnPulse(path);
+
+        // Track node cluster interaction in PostHog
+        posthog.capture('node_cluster_click', {
+          click_x: clickX,
+          click_y: clickY,
+          is_dense_cluster: nearestNode.isDense,
+          nearest_distance: Math.round(minDist)
+        });
       }
     });
     
@@ -856,6 +887,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  let gameStartTime = null;
+
   const openGame = () => {
     loadGameAssets().then(() => {
       if (window.KeiGame && typeof window.KeiGame.open === 'function') {
@@ -865,6 +898,9 @@ document.addEventListener('DOMContentLoaded', () => {
           gameModal.setAttribute('aria-hidden', 'false');
           document.body.style.overflow = 'hidden'; // Prevent main page scrolling
         }
+
+        gameStartTime = Date.now();
+        posthog.capture('game_opened');
       }
     });
   };
@@ -877,6 +913,15 @@ document.addEventListener('DOMContentLoaded', () => {
       gameModal.classList.remove('active');
       gameModal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = ''; // Re-enable main page scrolling
+    }
+
+    if (gameStartTime) {
+      const durationSeconds = Math.round((Date.now() - gameStartTime) / 1000);
+      posthog.capture('game_closed', {
+        duration_seconds: durationSeconds,
+        duration_formatted: `${Math.floor(durationSeconds / 60)}m ${durationSeconds % 60}s`
+      });
+      gameStartTime = null;
     }
   };
 
