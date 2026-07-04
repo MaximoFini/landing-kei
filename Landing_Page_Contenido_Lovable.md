@@ -72,7 +72,7 @@ El concepto visual de Kei es una red de nodos conectados. No camiones, no paquet
 > La logística tradicional sirvió 30 años. Es hora de algo mejor.
 
 **Subheadline (sans-serif, tamaño medio, color gris medio):**
-> Kei es la red colaborativa que conecta negocios y conductores para hacer envíos más rápidos, más baratos y sin burocracia. Córdoba, Argentina.
+> Kei es la red colaborativa que conecta negocios y conductores para hacer envíos más rápidos, más baratos y sin burocracia. Argentina.
 
 **CTA (botón alineado a la izquierda, color azul índigo primario, texto blanco, sin sombra grande):**
 > Hablá con nosotros
@@ -244,5 +244,5 @@ Un conductor pasa a buscar el paquete donde vos estés. Sin perder tiempo en suc
 - SVG para todos los íconos e ilustraciones — cero imágenes rasterizadas.
 - La animación de la red de nodos debe desactivarse o volverse estática en mobile para priorizar performance.
 - Lazy loading en todo el contenido below the fold.
-- Meta title sugerido: "Kei Logistics — Logística colaborativa en Córdoba"
-- Meta description sugerida: "La red colaborativa que conecta negocios y conductores para hacer envíos rápidos, económicos y sin burocracia en Córdoba, Argentina."
+- Meta title sugerido: "Kei Logistics — Logística colaborativa en Argentina"
+- Meta description sugerida: "La red colaborativa que conecta negocios y conductores para hacer envíos rápidos, económicos y sin burocracia en Argentina."

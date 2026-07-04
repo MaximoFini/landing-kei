@@ -1,21 +1,59 @@
-import posthog from 'posthog-js';
+// PostHog Lazy Loader - loaded asynchronously on interaction/idle to maximize performance
+let posthogInstance = null;
+let posthogPromise = null;
 
-// Initialize PostHog Analytics
-posthog.init('phc_kQWmbBHtcgBa3nfXM668nxvcEhbyF5QbCxQQxRA4Tsav', {
-  api_host: 'https://us.i.posthog.com',
-  person_profiles: 'identified_only',
-  autocapture: true,
-  capture_pageview: true,
-});
+const getPostHog = () => {
+  if (posthogInstance) return Promise.resolve(posthogInstance);
+  if (!posthogPromise) {
+    posthogPromise = import('posthog-js').then(({ default: posthog }) => {
+      posthog.init('phc_kQWmbBHtcgBa3nfXM668nxvcEhbyF5QbCxQQxRA4Tsav', {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'identified_only',
+        autocapture: true,
+        capture_pageview: true,
+        capture_pageleave: false, // Prevents unload listeners that break BFCache!
+      });
+      window.posthog = posthog;
+      posthogInstance = posthog;
+      return posthog;
+    }).catch(err => {
+      console.warn('PostHog deferral error:', err);
+      return null;
+    });
+  }
+  return posthogPromise;
+};
 
-window.posthog = posthog;
+// Queue event capture safely without blocking initial paint
+const captureEvent = (eventName, properties) => {
+  getPostHog().then((ph) => {
+    if (ph && typeof ph.capture === 'function') {
+      ph.capture(eventName, properties);
+    }
+  });
+};
+
+// Defer PostHog initialization until user interaction or 6 seconds
+const initPostHogOnInteraction = () => {
+  const events = ['pointerdown', 'keydown', 'touchstart', 'scroll'];
+  const handler = () => {
+    events.forEach(e => window.removeEventListener(e, handler, { passive: true }));
+    getPostHog();
+  };
+  events.forEach(e => window.addEventListener(e, handler, { passive: true }));
+  setTimeout(handler, 6000);
+};
+
+if (typeof window !== 'undefined') {
+  initPostHogOnInteraction();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   // Track contact button clicks
   document.querySelectorAll('a[href*="wa.me"]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const parentSection = btn.closest('section')?.id || btn.closest('header')?.className || 'unknown';
-      posthog.capture('contact_click', {
+      captureEvent('contact_click', {
         channel: 'whatsapp',
         link_text: btn.textContent.trim(),
         location: parentSection
@@ -23,41 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ==========================================
-  // 0. THEME TOGGLE (LIGHT / DARK SYSTEM)
-  // ==========================================
-  const themeToggleBtn = document.getElementById('theme-toggle');
-  
-  let isDarkTheme = false;
-
-  const applyTheme = (theme) => {
-    if (theme === 'dark') {
-      document.body.classList.add('dark-theme');
-      localStorage.setItem('theme', 'dark');
-      isDarkTheme = true;
-    } else {
-      document.body.classList.remove('dark-theme');
-      localStorage.setItem('theme', 'light');
-      isDarkTheme = false;
-    }
-  };
-
-  // Initialize theme
-  const savedTheme = localStorage.getItem('theme');
-  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-    applyTheme('dark');
-  } else {
-    applyTheme('light');
-  }
-
-  // Toggle button click handler
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      applyTheme(isDarkTheme ? 'light' : 'dark');
-    });
-  }
+  // Ensure dark-theme class is removed if present
+  document.body.classList.remove('dark-theme');
+  localStorage.removeItem('theme');
+  const isDarkTheme = false;
 
   // ==========================================
   // 1. SCROLL REVEAL ANIMATION
@@ -207,22 +214,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if mobile or layout dimensions
     const isMobile = () => window.innerWidth < 768;
     
-    // Calculate morphProgress based on scroll
-    const updateMorphProgress = () => {
+    // Cached layout metrics to prevent layout thrashing on scroll
+    let cachedHeroBottom = 0;
+    let cachedTargetFullyIn = 0;
+
+    const updateLayoutMetrics = () => {
       const heroSection = document.querySelector('.hero-section');
       const targetSection = document.getElementById('como-funciona');
       if (heroSection && targetSection) {
+        cachedHeroBottom = heroSection.offsetTop + heroSection.offsetHeight;
+        cachedTargetFullyIn = targetSection.offsetTop + targetSection.offsetHeight - window.innerHeight;
+      }
+    };
+
+    // Calculate morphProgress based on scroll without layout reflows
+    const updateMorphProgress = () => {
+      if (cachedHeroBottom > 0 && cachedTargetFullyIn > 0) {
         const scrollY = window.scrollY;
-        const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
-        // Fully in viewport means its bottom is visible at the bottom of viewport
-        const targetFullyIn = targetSection.offsetTop + targetSection.offsetHeight - window.innerHeight;
-        
-        if (scrollY <= heroBottom) {
+        if (scrollY <= cachedHeroBottom) {
           morphProgress = 0;
-        } else if (scrollY >= targetFullyIn) {
+        } else if (scrollY >= cachedTargetFullyIn) {
           morphProgress = 1;
         } else {
-          morphProgress = (scrollY - heroBottom) / Math.max(1, targetFullyIn - heroBottom);
+          morphProgress = (scrollY - cachedHeroBottom) / Math.max(1, cachedTargetFullyIn - cachedHeroBottom);
         }
       }
       
@@ -239,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
       canvas.width = width;
       canvas.height = height;
       
+      updateLayoutMetrics();
+
       const heroVisual = document.querySelector('.hero-visual');
       if (heroVisual) {
         const rect = heroVisual.getBoundingClientRect();
@@ -265,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateMorphProgress();
     };
     
-    // Initialize nodes
+    // Initialize nodes with optimized count for speed & lower TBT
     const initNodes = () => {
       nodes = [];
       pulses.length = 0;
@@ -274,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentHoveredNode = null;
 
       const mobile = isMobile();
-      const currentMaxNodes = mobile ? 22 : 45;
+      const currentMaxNodes = mobile ? 16 : 28;
 
       // 4 horizontal streets at Y coordinates
       const horizontalStreets = [
@@ -380,9 +396,22 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     };
     
+    // Canvas frame rate throttling (30 FPS to save CPU and main thread work)
+    let lastFrameTime = 0;
+    const targetFps = 30;
+    const fpsInterval = 1000 / targetFps;
+
     // Draw and update simulation
-    const animate = () => {
-      if (!isCanvasVisible) return;
+    const animate = (timestamp) => {
+      if (!isCanvasVisible || document.hidden) return;
+
+      animationFrameId = requestAnimationFrame(animate);
+
+      if (timestamp) {
+        const elapsed = timestamp - lastFrameTime;
+        if (elapsed < fpsInterval) return;
+        lastFrameTime = timestamp - (elapsed % fpsInterval);
+      }
       
       ctx.clearRect(0, 0, width, height);
 
@@ -610,8 +639,6 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       }
-      
-      animationFrameId = requestAnimationFrame(animate);
     };
     
     // Window mouse/touch listeners for background canvas interaction
@@ -683,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spawnPulse(path);
 
         // Track node cluster interaction in PostHog
-        posthog.capture('node_cluster_click', {
+        captureEvent('node_cluster_click', {
           click_x: clickX,
           click_y: clickY,
           is_dense_cluster: nearestNode.isDense,
@@ -708,6 +735,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     canvasObserver.observe(canvas);
     
+    // Handle tab visibility change to pause canvas animation when in background
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationFrameId);
+      } else if (isCanvasVisible) {
+        animate();
+      }
+    });
+
     // Handle resize
     window.addEventListener('resize', () => {
       resizeCanvas();
@@ -896,11 +932,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameModal) {
           gameModal.classList.add('active');
           gameModal.setAttribute('aria-hidden', 'false');
+          gameModal.removeAttribute('inert');
           document.body.style.overflow = 'hidden'; // Prevent main page scrolling
         }
 
         gameStartTime = Date.now();
-        posthog.capture('game_opened');
+        captureEvent('game_opened');
       }
     });
   };
@@ -912,12 +949,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (gameModal) {
       gameModal.classList.remove('active');
       gameModal.setAttribute('aria-hidden', 'true');
+      gameModal.setAttribute('inert', '');
       document.body.style.overflow = ''; // Re-enable main page scrolling
     }
 
     if (gameStartTime) {
       const durationSeconds = Math.round((Date.now() - gameStartTime) / 1000);
-      posthog.capture('game_closed', {
+      captureEvent('game_closed', {
         duration_seconds: durationSeconds,
         duration_formatted: `${Math.floor(durationSeconds / 60)}m ${durationSeconds % 60}s`
       });

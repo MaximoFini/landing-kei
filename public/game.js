@@ -385,7 +385,7 @@
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const isDark = document.body.classList.contains('dark-theme');
+    const isDark = false;
 
     // 1. Draw solid sky background
     ctx.fillStyle = isDark ? '#080A16' : '#F0F4FF';
@@ -877,7 +877,7 @@
 
     // Draw final blast frames to display the explosion
     const ctx = canvas.getContext('2d');
-    const isDark = document.body.classList.contains('dark-theme');
+    const isDark = false;
     
     let explosionDuration = 35;
     const runExplosionFrame = () => {

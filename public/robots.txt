@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://keilogistics.com/sitemap.xml

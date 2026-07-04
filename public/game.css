@@ -29,11 +29,6 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-body.dark-theme .runner-area-wrapper {
-  border-color: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
 #runner-canvas {
   width: 100%;
   height: 100%;
@@ -61,11 +56,6 @@ body.dark-theme .runner-area-wrapper {
   font-size: 0.85rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-
-body.dark-theme .runner-hud-glass {
-  background: rgba(10, 12, 22, 0.45);
-  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .hud-stat {
@@ -110,10 +100,6 @@ body.dark-theme .runner-hud-glass {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
-}
-
-body.dark-theme .game-screen {
-  background: rgba(11, 15, 30, 0.96);
 }
 
 .game-screen.active {
@@ -166,22 +152,10 @@ body.dark-theme .game-screen {
   gap: 0.25rem;
 }
 
-body.dark-theme .screen-score {
-  background: rgba(59, 98, 252, 0.1);
-  border-color: rgba(59, 98, 252, 0.2);
-  color: #5D7CFF;
-}
-
 .score-record {
   background: rgba(245, 158, 11, 0.08);
   border-color: rgba(245, 158, 11, 0.2);
   color: #d97706;
-}
-
-body.dark-theme .score-record {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.3);
-  color: #fbbf24;
 }
 
 .btn-game {
@@ -219,15 +193,6 @@ body.dark-theme .score-record {
   transform: translateY(-2px) !important;
 }
 
-body.dark-theme .btn-game-secondary {
-  color: #5D7CFF !important;
-  border-color: #5D7CFF !important;
-}
-
-body.dark-theme .btn-game-secondary:hover {
-  background: rgba(93, 124, 255, 0.1) !important;
-}
-
 /* Rotating tip bar at the bottom */
 .runner-tip-bar {
   width: 100%;
@@ -244,21 +209,12 @@ body.dark-theme .btn-game-secondary:hover {
   justify-content: center;
 }
 
-body.dark-theme .runner-tip-bar {
-  background: rgba(59, 98, 252, 0.04);
-  border-color: rgba(59, 98, 252, 0.08);
-}
-
 .runner-tip-text {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--primary-indigo);
   transition: opacity 0.3s ease, transform 0.3s ease;
   display: inline-block;
-}
-
-body.dark-theme .runner-tip-text {
-  color: #5D7CFF;
 }
 
 .runner-tip-text.slide-out {

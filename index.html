@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kei Logistics</title>
-  <meta name="description" content="La red colaborativa que conecta negocios y conductores para hacer envíos rápidos, económicos y sin burocracia en Córdoba, Argentina.">
+  <meta name="description" content="La red colaborativa que conecta negocios y conductores para hacer envíos rápidos, económicos y sin burocracia en Argentina.">
   
   <!-- Open Graph / WhatsApp / Facebook / LinkedIn -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Kei Logistics">
-  <meta property="og:description" content="La red colaborativa que conecta negocios y conductores para hacer envíos rápidos, económicos y sin burocracia en Córdoba, Argentina.">
+  <meta property="og:description" content="La red colaborativa que conecta negocios y conductores para hacer envíos rápidos, económicos y sin burocracia en Argentina.">
   <meta property="og:image" content="/og-image.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
@@ -18,7 +18,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Kei Logistics">
-  <meta name="twitter:description" content="La red colaborativa que conecta negocios y conductores para hacer envíos rápidos, económicos y sin burocracia en Córdoba, Argentina.">
+  <meta name="twitter:description" content="La red colaborativa que conecta negocios y conductores para hacer envíos rápidos, económicos y sin burocracia en Argentina.">
   <meta name="twitter:image" content="/og-image.png">
   
   <!-- Favicon -->
@@ -29,7 +29,11 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400&family=Merriweather:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </noscript>
   
   <link rel="stylesheet" href="/styles.css">
   
@@ -63,24 +67,6 @@
         </span>
       </a>
       <div class="navbar-actions">
-        <button id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">
-          <!-- Sun icon (visible in dark mode) -->
-          <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          <!-- Moon icon (visible in light mode) -->
-          <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        </button>
         <a href="https://wa.me/5493513614462" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
           Hablá con nosotros
         </a>
@@ -88,26 +74,28 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-container">
-      <div class="hero-content reveal">
-        <h1 class="hero-title">
-          La logística tradicional sirvió 30 años.<br>Es hora de algo mejor.
-        </h1>
-        <p class="hero-subtitle">
-          Kei es la red colaborativa que conecta negocios y conductores para hacer envíos más rápidos, más baratos y sin burocracia. Córdoba, Argentina.
-        </p>
-        <div class="hero-actions">
-          <a href="https://wa.me/5493513614462" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-            Hablá con nosotros
-            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-          </a>
+  <!-- Main Content Landmark -->
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-container">
+        <div class="hero-content reveal">
+          <h1 class="hero-title">
+            La logística tradicional sirvió 30 años.<br>Es hora de algo mejor.
+          </h1>
+          <p class="hero-subtitle">
+            Kei es la red colaborativa que conecta negocios y conductores para hacer envíos más rápidos, más baratos y sin burocracia. Argentina.
+          </p>
+          <div class="hero-actions">
+            <a href="https://wa.me/5493513614462" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+              Hablá con nosotros
+              <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+          </div>
         </div>
+        <div class="hero-visual"></div>
       </div>
-      <div class="hero-visual"></div>
-    </div>
-  </section>
+    </section>
 
   <!-- Section 2: El Problema -->
   <section class="problem-section" id="problema">
@@ -405,36 +393,30 @@
           <div class="benefit-number">/03</div>
           <div class="benefit-body">
             <div class="benefit-content">
-              <h3 class="benefit-title">Onboarding rápido</h3>
-              <p class="benefit-text">Sin burocracia, sin procesos complejos. Te registrás en minutos y empezás a enviar hoy mismo.</p>
+              <h3 class="benefit-title">Seguros integrados en envíos</h3>
+              <p class="benefit-text">Cada paquete viaja 100% protegido con cobertura automática ante pérdidas o incidentes, sin trámites ni costos ocultos.</p>
             </div>
-            <div class="benefit-visual visual-onboarding">
-              <div class="onboarding-steps">
-                <div class="onboarding-step step-1">
-                  <div class="step-check">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </div>
-                  <span class="step-label">Registro</span>
-                </div>
-                <div class="onboarding-step step-2">
-                  <div class="step-check">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </div>
-                  <span class="step-label">Verificación</span>
-                </div>
-                <div class="onboarding-step step-3">
-                  <div class="step-check">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </div>
-                  <span class="step-label">¡Listo!</span>
-                </div>
-              </div>
+            <div class="benefit-visual visual-seguros">
+              <svg class="visual-svg svg-seguros" viewBox="0 0 140 80" width="140" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Outer Protective Shield Aura -->
+                <path class="shield-aura" d="M70 10 L102 24 V44 C102 62 70 73 70 73 C70 73 38 62 38 44 V24 Z" stroke="rgba(23, 64, 182, 0.15)" stroke-width="1.5" stroke-dasharray="3 3" fill="rgba(23, 64, 182, 0.03)" />
+                
+                <!-- Solid Inner Shield -->
+                <path class="shield-main" d="M70 17 L94 28 V43 C94 57 70 66 70 66 C70 66 46 57 46 43 V28 Z" stroke="#1740B6" stroke-width="1.5" fill="rgba(23, 64, 182, 0.05)" />
+                
+                <!-- Insured Package Box inside Shield -->
+                <g class="shield-package">
+                  <rect x="58" y="34" width="24" height="20" rx="2" stroke="#1740B6" stroke-width="1.5" fill="var(--bg-primary)" />
+                  <path d="M58 41H82" stroke="#1740B6" stroke-width="1" stroke-dasharray="2 2" />
+                  <path d="M70 34V54" stroke="#1740B6" stroke-width="1" stroke-dasharray="2 2" />
+                </g>
+                
+                <!-- Verified Checkmark Badge -->
+                <g class="verified-badge">
+                  <circle cx="92" cy="24" r="9" fill="#1740B6" />
+                  <path d="M88 24L91 27L96 21" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+              </svg>
             </div>
           </div>
         </div>
@@ -444,23 +426,57 @@
           <div class="benefit-number">/04</div>
           <div class="benefit-body">
             <div class="benefit-content">
-              <h3 class="benefit-title">Retiro en tu local</h3>
-              <p class="benefit-text">Un conductor pasa a buscar el paquete donde vos estés. Sin perder tiempo haciendo filas interminables en sucursales.</p>
+              <h3 class="benefit-title">Integración a ventas web</h3>
+              <p class="benefit-text">Sincronizá tu tienda online (Tiendanube, Shopify, WooCommerce o API) para generar y despachar tus pedidos de forma automatizada.</p>
             </div>
-            <div class="benefit-visual visual-retiro">
-              <svg class="visual-svg svg-retiro" viewBox="0 0 160 100" width="160" height="100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Radial Pulse Rings (animated) -->
-                <circle class="pulse-ring ring-1" cx="80" cy="50" r="30" stroke="#1740B6" stroke-width="1.5" opacity="0" />
-                <circle class="pulse-ring ring-2" cx="80" cy="50" r="30" stroke="#1740B6" stroke-width="1.5" opacity="0" />
-                <circle class="pulse-ring ring-3" cx="80" cy="50" r="30" stroke="#1740B6" stroke-width="1.5" opacity="0" />
+            <div class="benefit-visual visual-integracion">
+              <svg class="visual-svg svg-integracion" viewBox="0 0 160 100" width="160" height="100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grid connection background line -->
+                <path d="M20 50H140" stroke="rgba(23, 64, 182, 0.08)" stroke-width="1" />
                 
-                <!-- Store/Local Icon -->
-                <g class="local-marker">
-                  <path d="M30 50h100M80 10v80" stroke="rgba(23, 64, 182, 0.06)" stroke-width="1.5" />
-                  <circle cx="80" cy="50" r="22" fill="rgba(23, 64, 182, 0.05)" stroke="rgba(23, 64, 182, 0.15)" stroke-width="1" />
-                  <rect x="70" y="44" width="20" height="13" rx="2" fill="#1740B6" />
-                  <path d="M68 44l4-5h16l4 5H68z" fill="#1740B6" stroke="#ffffff" stroke-width="1" />
-                  <rect x="77" y="50" width="6" height="7" fill="#ffffff" />
+                <!-- Web/E-commerce Store Window (Left) -->
+                <g class="web-store-node">
+                  <rect x="14" y="26" width="44" height="48" rx="4" stroke="#1740B6" stroke-width="1.5" fill="rgba(23, 64, 182, 0.05)" />
+                  <path d="M14 38H58" stroke="#1740B6" stroke-width="1" />
+                  <!-- Window header dots -->
+                  <circle cx="21" cy="32" r="1.5" fill="#1740B6" />
+                  <circle cx="27" cy="32" r="1.5" fill="#1740B6" stroke-opacity="0.5" />
+                  <circle cx="33" cy="32" r="1.5" fill="#1740B6" stroke-opacity="0.5" />
+                  <!-- Code / API Symbol inside browser window -->
+                  <path d="M24 48L20 52L24 56" stroke="#1740B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M48 48L52 52L48 56" stroke="#1740B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M38 46L34 58" stroke="#1740B6" stroke-width="1.5" stroke-linecap="round" />
+                </g>
+
+                <!-- Dotted Track Path Connecting Store to Kei Logistics -->
+                <path id="integracion-path" d="M58 50 H102" stroke="rgba(23, 64, 182, 0.25)" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round" />
+                
+                <!-- Moving API Data Packet Dot -->
+                <circle class="moving-packet" r="4" fill="#1740B6">
+                  <animateMotion dur="2.5s" repeatCount="indefinite" path="M58 50 H102" />
+                </circle>
+                <circle class="moving-packet-glow" r="7" fill="rgba(23, 64, 182, 0.25)">
+                  <animateMotion dur="2.5s" repeatCount="indefinite" path="M58 50 H102" />
+                </circle>
+
+                <!-- Sync / API Hub Center Node -->
+                <g class="sync-hub">
+                  <circle cx="80" cy="50" r="10" stroke="#1740B6" stroke-width="1.5" fill="var(--bg-primary)" />
+                  <!-- Sync arrows inside hub -->
+                  <path d="M76 48A4 4 0 0 1 83 47L81 49" stroke="#1740B6" stroke-width="1.2" stroke-linecap="round" />
+                  <path d="M84 52A4 4 0 0 1 77 53L79 51" stroke="#1740B6" stroke-width="1.2" stroke-linecap="round" />
+                </g>
+
+                <!-- Kei Logistics Package Node (Right) -->
+                <g class="kei-package-node">
+                  <rect x="102" y="26" width="44" height="48" rx="4" stroke="#1740B6" stroke-width="1.5" fill="rgba(23, 64, 182, 0.05)" />
+                  <path d="M102 44H146" stroke="#1740B6" stroke-width="1" stroke-dasharray="2 2" />
+                  <path d="M124 26V74" stroke="#1740B6" stroke-width="1" stroke-dasharray="2 2" />
+                  <!-- Tape / Label -->
+                  <rect x="114" y="32" width="20" height="8" rx="1" fill="#1740B6" />
+                  <!-- Success check tag -->
+                  <circle cx="124" cy="58" r="6" fill="#1740B6" />
+                  <path d="M121 58L123 60L127 56" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
                 </g>
               </svg>
             </div>
@@ -530,6 +546,7 @@
       <p class="final-cta-note">Sin contratos. Sin compromisos.</p>
     </div>
   </section>
+  </main>
 
   <!-- Footer -->
   <footer class="footer">
@@ -547,7 +564,7 @@
       <div class="footer-info">
         <p class="footer-location">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="location-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-          Córdoba, Argentina
+          Argentina
         </p>
         <p class="footer-copy">&copy; 2026 Kei Logistics. Todos los derechos reservados.</p>
       </div>
@@ -555,7 +572,7 @@
   </footer>
 
   <!-- Game Floating Action Button (FAB) -->
-  <button id="game-fab" class="game-fab" aria-label="Jugar Whack-a-Problem" title="Minijuego: Whack-a-Problem">
+  <button id="game-fab" class="game-fab" aria-label="Jugar Kei Runner" title="Minijuego: Kei Runner">
     <!-- Gamepad Icon -->
     <svg class="game-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="6" width="20" height="12" rx="3"></rect>
@@ -568,7 +585,7 @@
   </button>
 
   <!-- Game Modal Wrapper -->
-  <div id="game-modal" class="game-modal" aria-hidden="true" role="dialog">
+  <div id="game-modal" class="game-modal" aria-hidden="true" role="dialog" inert>
     <div class="game-modal-backdrop"></div>
     <div class="game-modal-content">
       <button class="game-modal-close" id="game-modal-close" aria-label="Cerrar juego">
